@@ -1,5 +1,5 @@
 {% load static %}
-<header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+<header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800" x-data="{ isAvatarModalOpen: false, selectedPreset: '' }">
   <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
     
     <!-- Mobile hamburger menu button -->
@@ -49,16 +49,31 @@
         {% else %}
            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 hidden sm:inline">Invitado / Anon</span>
         {% endif %}
-        <button class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none" @click="isProfileOpen = !isProfileOpen" aria-label="Account">
-          <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center text-xs">
-            {% if request.session.user_email %}{{ request.session.user_email|first|upper }}{% else %}U{% endif %}
-          </div>
+
+        <button class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none transition-transform hover:scale-105" @click="isProfileOpen = !isProfileOpen" aria-label="Account">
+          {% if request.session.user_avatar %}
+            <img src="{{ request.session.user_avatar }}" class="w-8 h-8 rounded-full object-cover border-2 border-purple-500 shadow-sm" alt="Foto de Perfil">
+          {% else %}
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shadow-sm border border-purple-400">
+              {% if request.session.user_email %}{{ request.session.user_email|first|upper }}{% else %}U{% endif %}
+            </div>
+          {% endif %}
         </button>
+
         <template x-if="isProfileOpen">
           <ul @click.away="isProfileOpen = false" class="absolute right-0 top-10 w-48 p-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 z-50">
             {% if request.session.access_token %}
               <li class="flex">
-                <a href="{% url 'logout' %}" class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                <button @click="isAvatarModalOpen = true; isProfileOpen = false" class="inline-flex items-center w-full px-2 py-1.5 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-gray-800 dark:hover:text-purple-300">
+                  <svg class="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                  <span>Cambiar Foto</span>
+                </button>
+              </li>
+              <li class="flex border-t border-gray-100 dark:border-gray-600 pt-1">
+                <a href="{% url 'logout' %}" class="inline-flex items-center w-full px-2 py-1.5 text-sm font-semibold transition-colors duration-150 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-gray-800">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                   </svg>
@@ -81,5 +96,71 @@
         </template>
       </li>
     </ul>
+  </div>
+
+  <!-- Modal Cambiar Foto de Perfil -->
+  <div x-show="isAvatarModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm" x-cloak>
+    <div @click.away="isAvatarModalOpen = false" class="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 transition-all">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+          <span>📷</span> Cambiar Foto de Perfil
+        </h3>
+        <button @click="isAvatarModalOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg font-bold">&times;</button>
+      </div>
+
+      <form method="post" action="{% url 'cambiar_foto_perfil' %}" enctype="multipart/form-data" class="mt-4 space-y-4">
+        {% csrf_token %}
+
+        <!-- Preset Avatars selection -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+            Elige un Avatar prediseñado:
+          </label>
+          <div class="grid grid-cols-5 gap-2">
+            <button type="button" @click="selectedPreset = 'https://api.dicebear.com/7.x/bottts/svg?seed=Executive'" class="p-1 rounded-xl border-2 transition-all hover:scale-105" :class="selectedPreset.includes('Executive') ? 'border-purple-600 bg-purple-50' : 'border-gray-200 dark:border-gray-700'">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Executive" class="w-10 h-10 mx-auto" alt="Avatar 1">
+            </button>
+            <button type="button" @click="selectedPreset = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'" class="p-1 rounded-xl border-2 transition-all hover:scale-105" :class="selectedPreset.includes('Felix') ? 'border-purple-600 bg-purple-50' : 'border-gray-200 dark:border-gray-700'">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="w-10 h-10 mx-auto" alt="Avatar 2">
+            </button>
+            <button type="button" @click="selectedPreset = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka'" class="p-1 rounded-xl border-2 transition-all hover:scale-105" :class="selectedPreset.includes('Aneka') ? 'border-purple-600 bg-purple-50' : 'border-gray-200 dark:border-gray-700'">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="w-10 h-10 mx-auto" alt="Avatar 3">
+            </button>
+            <button type="button" @click="selectedPreset = 'https://api.dicebear.com/7.x/bottts/svg?seed=AdminBoss'" class="p-1 rounded-xl border-2 transition-all hover:scale-105" :class="selectedPreset.includes('AdminBoss') ? 'border-purple-600 bg-purple-50' : 'border-gray-200 dark:border-gray-700'">
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=AdminBoss" class="w-10 h-10 mx-auto" alt="Avatar 4">
+            </button>
+            <button type="button" @click="selectedPreset = 'https://api.dicebear.com/7.x/avataaars/svg?seed=Samantha'" class="p-1 rounded-xl border-2 transition-all hover:scale-105" :class="selectedPreset.includes('Samantha') ? 'border-purple-600 bg-purple-50' : 'border-gray-200 dark:border-gray-700'">
+              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Samantha" class="w-10 h-10 mx-auto" alt="Avatar 5">
+            </button>
+          </div>
+        </div>
+
+        <input type="hidden" name="avatar_url" :value="selectedPreset">
+
+        <div class="relative flex py-1 items-center">
+          <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+          <span class="flex-shrink mx-3 text-xs text-gray-400 font-semibold">O sube desde tu equipo</span>
+          <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+
+        <!-- Subir imagen desde la computadora -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+            Archivo de imagen (PNG, JPG, SVG):
+          </label>
+          <input type="file" name="avatar_file" accept="image/*" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-gray-700 dark:file:text-purple-300 border border-gray-200 dark:border-gray-700 rounded-lg p-1">
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <button type="button" @click="isAvatarModalOpen = false" class="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 shadow-md">
+            Guardar Foto
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </header>

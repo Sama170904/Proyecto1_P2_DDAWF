@@ -61,3 +61,24 @@ def logout_view(request):
     request.session.flush()
     messages.info(request, "Has cerrado sesión correctamente.")
     return redirect('login')
+
+
+import base64
+
+def cambiar_foto_perfil(request):
+    if request.method == 'POST':
+        avatar_url = request.POST.get('avatar_url', '').strip()
+        avatar_file = request.FILES.get('avatar_file')
+
+        if avatar_file:
+            content_type = avatar_file.content_type or 'image/png'
+            encoded_image = base64.b64encode(avatar_file.read()).decode('utf-8')
+            request.session['user_avatar'] = f"data:{content_type};base64,{encoded_image}"
+            messages.success(request, "Foto de perfil actualizada exitosamente.")
+        elif avatar_url:
+            request.session['user_avatar'] = avatar_url
+            messages.success(request, "Foto de perfil actualizada exitosamente.")
+        else:
+            messages.error(request, "Por favor seleccione una imagen o ingrese una URL válida.")
+
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard:index'))
