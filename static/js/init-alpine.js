@@ -33,5 +33,10 @@ function data() {
     closeProfileMenu() {
       this.isProfileMenuOpen = false
     },
+    isAvatarModalOpen: false,
+    selectedPreset: '',
+    toggleAvatarModal() {
+      this.isAvatarModalOpen = !this.isAvatarModalOpen
+    }
   }
 }
