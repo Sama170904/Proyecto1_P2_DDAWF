@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html :class="{ 'dark': dark, 'theme-dark': dark }" x-data="data()" lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title|default:"Sistema de Nómina - Ecuador" }}</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              purple: {
+                50: '#f9f5ff',
+                100: '#f4ebff',
+                600: '#7e3af2',
+                700: '#6c2bd9',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
+      defer
+    ></script>
+    <script src="{% static 'js/init-alpine.js' %}"></script>
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 font-sans antialiased text-gray-800 dark:text-gray-200">
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+      
+      <!-- Sidebar -->
+      {% include "dashboard/partials/sidebar.html" %}
+
+      <div class="flex flex-col flex-1 w-full overflow-y-auto">
+        <!-- Header / Navbar -->
+        {% include "dashboard/partials/header.html" %}
+
+        <!-- Flash Messages -->
+        {% if messages %}
+          <div class="px-6 pt-4 space-y-2">
+            {% for message in messages %}
+              <div class="p-4 rounded-lg text-sm font-medium shadow-md flex items-center justify-between
+                {% if message.tags == 'error' %} bg-red-100 text-red-800 border-l-4 border-red-500 dark:bg-red-900 dark:text-red-100
+                {% elif message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500 dark:bg-yellow-900 dark:text-yellow-100
+                {% elif message.tags == 'success' %} bg-green-100 text-green-800 border-l-4 border-green-500 dark:bg-green-900 dark:text-green-100
+                {% else %} bg-blue-100 text-blue-800 border-l-4 border-blue-500 dark:bg-blue-900 dark:text-blue-100 {% endif %}">
+                <span>{{ message }}</span>
+                <button type="button" onclick="this.parentElement.remove()" class="text-xs font-bold px-2 py-1 opacity-70 hover:opacity-100">&times;</button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Page Main Content -->
+        <main class="h-full pb-16 overflow-y-auto">
+          {% block content %}
+          {% endblock %}
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

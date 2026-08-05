@@ -1,0 +1,153 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto max-w-4xl">
+  
+  <div class="flex items-center justify-between my-6 print:hidden">
+    <a href="{% url 'nominas:historico' %}" class="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1">
+      ← Volver al Histórico
+    </a>
+    <button onclick="window.print()" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+      </svg>
+      <span>Imprimir / Guardar PDF</span>
+    </button>
+  </div>
+
+  <!-- Printable Pay Slip Document -->
+  <div class="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 text-gray-800 dark:text-gray-200">
+    
+    <!-- Header -->
+    <div class="border-b-2 border-purple-600 pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-black text-purple-700 dark:text-purple-400 uppercase tracking-wide">
+          ROL INDIVIDUAL DE PAGOS
+        </h1>
+        <p class="text-xs font-semibold text-gray-500 uppercase">República del Ecuador - Normativa Código del Trabajo</p>
+      </div>
+      <div class="text-right">
+        <span class="px-3 py-1 bg-purple-100 text-purple-800 font-mono font-bold text-sm rounded-full">
+          PERÍODO: {{ periodo }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Employee Info Box -->
+    <div class="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6 text-sm">
+      <div>
+        <p class="text-xs text-gray-500 uppercase font-semibold">Nombres del Empleado</p>
+        <p class="font-bold text-base text-gray-900 dark:text-gray-100">{{ empleado.nombres }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 uppercase font-semibold">Cédula de Identidad</p>
+        <p class="font-mono font-bold text-base text-purple-600 dark:text-purple-300">{{ empleado.cedula }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 uppercase font-semibold">Cuenta Bancaria de Destino</p>
+        <p class="font-mono font-semibold text-gray-800 dark:text-gray-200">{{ empleado.cuenta_bancaria }}</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 uppercase font-semibold">Estado de Pago</p>
+        <p class="font-bold text-sm uppercase">
+          {% if nomina.estado_pago == 'procesado' %}<span class="text-green-600">✓ PROCESADO</span>{% else %}<span class="text-orange-500">PENDIENTE</span>{% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Detailed Breakdown Table -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      
+      <!-- INGRESOS -->
+      <div class="border rounded-lg overflow-hidden">
+        <div class="bg-green-600 text-white px-4 py-2 text-sm font-bold uppercase">
+          (+) Ingresos y Beneficios
+        </div>
+        <table class="w-full text-xs">
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-4 py-2">Sueldo Básico Unificado</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.sueldo_basico|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Bonificaciones</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.bonificaciones|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Reembolsos de Gastos</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.reembolsos|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Décimo Tercer Sueldo (Mensualizado)</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.decimo_tercero|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Décimo Cuarto Sueldo (Mensualizado)</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.decimo_cuarto|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Fondos de Reserva (8.33%)</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold">${{ nomina.fondos_reserva|floatformat:2 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- EGRESOS -->
+      <div class="border rounded-lg overflow-hidden">
+        <div class="bg-red-600 text-white px-4 py-2 text-sm font-bold uppercase">
+          (-) Egresos y Deducciones
+        </div>
+        <table class="w-full text-xs">
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-4 py-2">Aporte Personal IESS (9.45%)</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold text-red-600">-${{ nomina.descuento_iess|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Préstamos Empresa</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold text-red-600">-${{ nomina.descuento_prestamos|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Préstamo Quirografario IESS</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold text-red-600">-${{ nomina.descuento_prestamo_iess|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Anticipos de Sueldo</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold text-red-600">-${{ nomina.descuento_anticipos|floatformat:2 }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2">Otros Descuentos</td>
+              <td class="px-4 py-2 font-mono text-right font-semibold text-red-600">-${{ nomina.otros_descuentos|floatformat:2 }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Total Net Payable -->
+    <div class="p-4 bg-purple-50 dark:bg-purple-900 border border-purple-200 dark:border-purple-700 rounded-lg flex items-center justify-between mb-8">
+      <span class="text-base font-bold text-purple-900 dark:text-purple-100 uppercase">NETO A RECIBIR (LÍQUIDO):</span>
+      <span class="text-3xl font-black font-mono text-purple-700 dark:text-purple-300">
+        ${{ nomina.neto_pagar|floatformat:2 }} USD
+      </span>
+    </div>
+
+    <!-- Signatures -->
+    <div class="grid grid-cols-2 gap-12 pt-12 border-t text-center text-xs text-gray-500">
+      <div>
+        <div class="border-b border-gray-400 w-3/4 mx-auto mb-2"></div>
+        <p class="font-bold uppercase text-gray-700 dark:text-gray-300">ELABORADO POR / EMPRESA</p>
+        <p>Departamento de Recursos Humanos</p>
+      </div>
+      <div>
+        <div class="border-b border-gray-400 w-3/4 mx-auto mb-2"></div>
+        <p class="font-bold uppercase text-gray-700 dark:text-gray-300">RECIBÍ CONFORME (EMPLEADO)</p>
+        <p>C.I. {{ empleado.cedula }}</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

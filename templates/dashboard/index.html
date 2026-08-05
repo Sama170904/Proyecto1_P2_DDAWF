@@ -1,0 +1,143 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto grid">
+  
+  <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+    {{ title }}
+  </h2>
+
+  <!-- CTA Banner -->
+  <div class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+      </svg>
+      <span>Sistema de Nómina Ecuador - Conectado a Backend FastAPI & Supabase</span>
+    </div>
+    <span class="px-3 py-1 bg-white text-purple-700 text-xs font-bold rounded-full uppercase">SBU 2026: ${{ sbu_vigente }}</span>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+    
+    <!-- Card 1: Total Empleados -->
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Total Empleados</p>
+        <p class="text-2xl font-bold text-gray-700 dark:text-gray-200">{{ empleados_count }}</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Total Novedades -->
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Novedades Registradas</p>
+        <p class="text-2xl font-bold text-gray-700 dark:text-gray-200">{{ novedades_count }}</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Historical Payrolls -->
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 text-purple-500 bg-purple-100 rounded-full dark:text-purple-100 dark:bg-purple-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Nóminas Generadas</p>
+        <p class="text-2xl font-bold text-gray-700 dark:text-gray-200">{{ nominas_count }}</p>
+      </div>
+    </div>
+
+    <!-- Card 4: API Status -->
+    <div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <div class="p-3 mr-4 {% if api_online %}text-green-500 bg-green-100 dark:text-green-100 dark:bg-green-500{% else %}text-red-500 bg-red-100 dark:text-red-100 dark:bg-red-500{% endif %} rounded-full">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"></path>
+        </svg>
+      </div>
+      <div>
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Estado API Backend</p>
+        <p class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ api_status }}</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Main Quick Actions Section -->
+  <div class="grid gap-6 mb-8 md:grid-cols-2">
+    <!-- Quick Actions Panel -->
+    <div class="min-w-0 p-6 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Acciones Rápida de Nómina</h4>
+      <div class="grid grid-cols-2 gap-4">
+        <a href="{% url 'empleados:create' %}" class="flex flex-col items-center justify-center p-4 bg-purple-50 dark:bg-gray-700 rounded-lg text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition">
+          <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+          </svg>
+          <span class="text-xs font-semibold text-center">+ Crear Empleado</span>
+        </a>
+
+        <a href="{% url 'novedades:create' %}" class="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-gray-700 rounded-lg text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition">
+          <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          <span class="text-xs font-semibold text-center">+ Registrar Novedad</span>
+        </a>
+
+        <a href="{% url 'nominas:calcular' %}" class="flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-gray-700 rounded-lg text-green-700 dark:text-green-300 hover:bg-green-100 transition">
+          <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+          </svg>
+          <span class="text-xs font-semibold text-center">Calcular Nómina Mes</span>
+        </a>
+
+        <a href="{% url 'nominas:conciliacion' %}" class="flex flex-col items-center justify-center p-4 bg-yellow-50 dark:bg-gray-700 rounded-lg text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 transition">
+          <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+          </svg>
+          <span class="text-xs font-semibold text-center">Conciliación Bancaria</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Legal Framework Summary -->
+    <div class="min-w-0 p-6 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+      <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">Normativa Laboral Aplicada (Ecuador 2026)</h4>
+      <ul class="space-y-3 text-xs text-gray-600 dark:text-gray-400">
+        <li class="flex items-start">
+          <span class="px-2 py-0.5 text-xs font-bold text-purple-700 bg-purple-100 rounded mr-2">SBU</span>
+          <span>Salario Básico Unificado fijado en <strong>$460.00</strong>. Validación de salario mínimo activada.</span>
+        </li>
+        <li class="flex items-start">
+          <span class="px-2 py-0.5 text-xs font-bold text-blue-700 bg-blue-100 rounded mr-2">IESS</span>
+          <span>Deducción del <strong>9.45%</strong> del aporte personal sobre el total de ingresos gravables.</span>
+        </li>
+        <li class="flex items-start">
+          <span class="px-2 py-0.5 text-xs font-bold text-green-700 bg-green-100 rounded mr-2">D13</span>
+          <span>Décimo Tercer Sueldo: doceava parte de remuneraciones completas `(Sueldo + Bonificaciones) / 12`.</span>
+        </li>
+        <li class="flex items-start">
+          <span class="px-2 py-0.5 text-xs font-bold text-amber-700 bg-amber-100 rounded mr-2">D14</span>
+          <span>Décimo Cuarto Sueldo: doceava parte del SBU `460.00 / 12 = $38.33`.</span>
+        </li>
+        <li class="flex items-start">
+          <span class="px-2 py-0.5 text-xs font-bold text-teal-700 bg-teal-100 rounded mr-2">FR</span>
+          <span>Fondos de Reserva equivalentes al <strong>8.33%</strong> de ingresos gravables.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

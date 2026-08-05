@@ -1,0 +1,76 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto grid">
+  <div class="flex items-center justify-between my-6">
+    <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+      {{ title }}
+    </h2>
+    <a href="{% url 'novedades:create' %}" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg active:bg-blue-600 hover:bg-blue-700 focus:outline-none focus:shadow-outline-blue flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4"></path>
+      </svg>
+      <span>Registrar Novedad</span>
+    </a>
+  </div>
+
+  {% if error %}
+    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <div class="w-full overflow-hidden rounded-lg shadow-xs border dark:border-gray-700">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <thead>
+          <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Cédula Empleado</th>
+            <th class="px-4 py-3">Período</th>
+            <th class="px-4 py-3">Anticipos ($)</th>
+            <th class="px-4 py-3">Préstamo IESS ($)</th>
+            <th class="px-4 py-3">Otros Descuentos ($)</th>
+            <th class="px-4 py-3">Reembolsos ($)</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800 text-sm">
+          {% for nov in novedades %}
+            <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              <td class="px-4 py-3 font-bold text-gray-500">
+                #{{ nov.id|default:'-' }}
+              </td>
+              <td class="px-4 py-3 font-mono font-bold text-purple-600 dark:text-purple-400">
+                {{ nov.empleado_cedula }}
+              </td>
+              <td class="px-4 py-3">
+                <span class="px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 rounded">
+                  {{ nov.periodo }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-red-600 dark:text-red-400 font-semibold">
+                ${{ nov.anticipos|default:0|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 text-amber-600 dark:text-amber-400">
+                ${{ nov.prestamo_iess|default:0|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 text-red-500">
+                ${{ nov.descuentos|default:0|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 text-green-600 font-semibold">
+                +${{ nov.reembolsos|default:0|floatformat:2 }}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                No hay novedades de nómina registradas.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

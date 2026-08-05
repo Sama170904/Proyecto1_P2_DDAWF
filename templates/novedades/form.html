@@ -1,0 +1,120 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto max-w-2xl">
+  <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+    {{ title }}
+  </h2>
+
+  <div class="px-6 py-6 bg-white rounded-lg shadow-md dark:bg-gray-800 border dark:border-gray-700">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Empleado Cédula -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Seleccionar Empleado *
+        </label>
+        {% if empleados %}
+          <select name="empleado_cedula" required class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500">
+            <option value="">-- Seleccionar --</option>
+            {% for emp in empleados %}
+              <option value="{{ emp.cedula }}">{{ emp.nombres }} (C.I. {{ emp.cedula }})</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          <input
+            type="text"
+            name="empleado_cedula"
+            required
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            placeholder="Ingrese Cédula del Empleado (Ej: 1723456789)"
+          />
+        {% endif %}
+      </div>
+
+      <!-- Período -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Período Fiscal (YYYY-MM) *
+        </label>
+        <input
+          type="text"
+          name="periodo"
+          required
+          value="2026-07"
+          class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          placeholder="2026-07"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Anticipos -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Anticipos de Sueldo ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="anticipos"
+            value="0.00"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        <!-- Préstamo IESS -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Préstamo Quirografario IESS ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="prestamo_iess"
+            value="0.00"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        <!-- Descuentos varios -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Otros Descuentos ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="descuentos"
+            value="0.00"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        <!-- Reembolsos -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Reembolsos de Gastos ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="reembolsos"
+            value="0.00"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4 pt-4">
+        <a href="{% url 'novedades:list' %}" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+          Registrar Novedad
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

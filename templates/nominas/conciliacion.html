@@ -1,0 +1,173 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto grid">
+  <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+    {{ title }}
+  </h2>
+
+  <!-- Bank Conciliation Input Card -->
+  <div class="p-6 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800 border dark:border-gray-700">
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Período a Conciliar (YYYY-MM)
+        </label>
+        <input
+          type="text"
+          name="periodo"
+          value="{{ periodo }}"
+          required
+          class="w-full md:w-64 p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500 font-mono"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Transacciones Bancarias Recibidas (JSON Array)
+        </label>
+        <textarea
+          name="transacciones_json"
+          rows="6"
+          required
+          class="w-full p-3 font-mono text-xs dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+          placeholder='[{"cuenta_bancaria": "1234567890", "monto": 200.0, "referencia": "TRANSF-001"}]'
+        >{{ default_example }}</textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="px-6 py-2.5 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-yellow-600 border border-transparent rounded-lg active:bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:shadow-outline-yellow flex items-center gap-2"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Ejecutar Conciliación Bancaria</span>
+      </button>
+    </form>
+  </div>
+
+  {% if reporte %}
+    <!-- Conciliation Results Report -->
+    <div class="space-y-6 mb-12">
+      
+      <!-- Metrics summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-green-50 dark:bg-green-900 border border-green-200 rounded-lg">
+          <p class="text-xs font-semibold text-green-700 dark:text-green-200 uppercase">Transacciones Conciliadas</p>
+          <p class="text-2xl font-bold text-green-800 dark:text-green-100">{{ reporte.conciliados|length }}</p>
+        </div>
+
+        <div class="p-4 bg-red-50 dark:bg-red-900 border border-red-200 rounded-lg">
+          <p class="text-xs font-semibold text-red-700 dark:text-red-200 uppercase">Inconsistencias / Errores</p>
+          <p class="text-2xl font-bold text-red-800 dark:text-red-100">{{ reporte.inconsistencias|length }}</p>
+        </div>
+
+        <div class="p-4 bg-amber-50 dark:bg-amber-900 border border-amber-200 rounded-lg">
+          <p class="text-xs font-semibold text-amber-700 dark:text-amber-200 uppercase">Anticipos No Reflejados</p>
+          <p class="text-2xl font-bold text-amber-800 dark:text-amber-100">{{ reporte.no_conciliados_sistema|length }}</p>
+        </div>
+      </div>
+
+      <!-- Table 1: Conciliados -->
+      {% if reporte.conciliados %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700 p-4">
+          <h3 class="text-base font-bold text-green-700 dark:text-green-400 mb-3 flex items-center gap-2">
+            ✓ Transacciones Conciliadas Correctamente ({{ reporte.conciliados|length }})
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-100 font-bold uppercase">
+                <tr>
+                  <th class="p-2">Cuenta Bancaria</th>
+                  <th class="p-2">Empleado</th>
+                  <th class="p-2">Cédula</th>
+                  <th class="p-2">Referencia</th>
+                  <th class="p-2 text-right">Monto Conciliado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                {% for item in reporte.conciliados %}
+                  <tr>
+                    <td class="p-2 font-mono">{{ item.cuenta_bancaria }}</td>
+                    <td class="p-2 font-semibold">{{ item.empleado_nombres }}</td>
+                    <td class="p-2 font-mono">{{ item.empleado_cedula }}</td>
+                    <td class="p-2 font-mono text-gray-500">{{ item.referencia }}</td>
+                    <td class="p-2 font-mono text-right font-bold text-green-600">${{ item.monto|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Table 2: Inconsistencias -->
+      {% if reporte.inconsistencias %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700 p-4">
+          <h3 class="text-base font-bold text-red-700 dark:text-red-400 mb-3 flex items-center gap-2">
+            ⚠️ Inconsistencias Detectadas ({{ reporte.inconsistencias|length }})
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-100 font-bold uppercase">
+                <tr>
+                  <th class="p-2">Cuenta Bancaria</th>
+                  <th class="p-2">Empleado</th>
+                  <th class="p-2">Monto Transacción</th>
+                  <th class="p-2">Detalle de Inconsistencia</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                {% for item in reporte.inconsistencias %}
+                  <tr class="bg-red-50 dark:bg-red-950">
+                    <td class="p-2 font-mono">{{ item.cuenta_bancaria }}</td>
+                    <td class="p-2 font-semibold">{{ item.empleado_nombres|default:'Desconocido' }}</td>
+                    <td class="p-2 font-mono font-bold text-red-700">${{ item.monto|floatformat:2 }}</td>
+                    <td class="p-2 text-red-600 font-medium">{{ item.tipo_error }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Table 3: No Conciliados Sistema -->
+      {% if reporte.no_conciliados_sistema %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow border dark:border-gray-700 p-4">
+          <h3 class="text-base font-bold text-amber-700 dark:text-amber-400 mb-3 flex items-center gap-2">
+            📌 Anticipos del Sistema Sin Reflejar en Banco ({{ reporte.no_conciliados_sistema|length }})
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-amber-100 dark:bg-amber-900 text-amber-900 dark:text-amber-100 font-bold uppercase">
+                <tr>
+                  <th class="p-2">Empleado</th>
+                  <th class="p-2">Cédula</th>
+                  <th class="p-2">Cuenta Registrada</th>
+                  <th class="p-2 text-right">Anticipo en Sistema</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                {% for item in reporte.no_conciliados_sistema %}
+                  <tr>
+                    <td class="p-2 font-semibold">{{ item.empleado_nombres }}</td>
+                    <td class="p-2 font-mono">{{ item.empleado_cedula }}</td>
+                    <td class="p-2 font-mono text-gray-500">{{ item.cuenta_bancaria }}</td>
+                    <td class="p-2 font-mono text-right font-bold text-amber-600">${{ item.anticipo_registrado|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

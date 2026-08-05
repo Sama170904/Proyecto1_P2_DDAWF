@@ -1,0 +1,100 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto grid">
+  <div class="flex items-center justify-between my-6">
+    <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+      {{ title }}
+    </h2>
+    <a href="{% url 'empleados:create' %}" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4"></path>
+      </svg>
+      <span>Nuevo Empleado</span>
+    </a>
+  </div>
+
+  {% if error %}
+    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <!-- Table Container -->
+  <div class="w-full overflow-hidden rounded-lg shadow-xs border dark:border-gray-700">
+    <div class="w-full overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <thead>
+          <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+            <th class="px-4 py-3">Cédula</th>
+            <th class="px-4 py-3">Empleado</th>
+            <th class="px-4 py-3">Sueldo Básico</th>
+            <th class="px-4 py-3">Bonificaciones</th>
+            <th class="px-4 py-3">Préstamos</th>
+            <th class="px-4 py-3">Cuenta Bancaria</th>
+            <th class="px-4 py-3">Beneficios</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800 text-sm">
+          {% for emp in empleados %}
+            <tr class="text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+              <td class="px-4 py-3 font-mono text-xs font-bold text-purple-600 dark:text-purple-400">
+                {{ emp.cedula }}
+              </td>
+              <td class="px-4 py-3 font-medium">
+                {{ emp.nombres }}
+              </td>
+              <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
+                ${{ emp.sueldo_basico|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 text-green-600 dark:text-green-400">
+                +${{ emp.bonificaciones|default:0|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 text-red-600 dark:text-red-400">
+                -${{ emp.prestamos|default:0|floatformat:2 }}
+              </td>
+              <td class="px-4 py-3 font-mono text-xs text-gray-500">
+                {{ emp.cuenta_bancaria }}
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex gap-1">
+                  {% if emp.decimos %}
+                    <span class="px-2 py-0.5 text-xs font-semibold leading-tight text-blue-700 bg-blue-100 rounded-full dark:bg-blue-700 dark:text-blue-100">Décimos</span>
+                  {% endif %}
+                  {% if emp.fondos_reserva %}
+                    <span class="px-2 py-0.5 text-xs font-semibold leading-tight text-teal-700 bg-teal-100 rounded-full dark:bg-teal-700 dark:text-teal-100">Reserva</span>
+                  {% endif %}
+                </div>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex items-center justify-end space-x-2 text-sm">
+                  <a href="{% url 'empleados:edit' emp.cedula %}" class="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400" title="Editar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </a>
+                  <form method="post" action="{% url 'empleados:delete' emp.cedula %}" onsubmit="return confirm('¿Está seguro de eliminar al empleado {{ emp.nombres }}?');" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="p-1 text-red-600 hover:text-red-800 dark:text-red-400" title="Eliminar">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                      </svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                No hay empleados registrados en el sistema.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

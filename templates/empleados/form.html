@@ -1,0 +1,156 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="container px-6 mx-auto max-w-4xl">
+  <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+    {{ title }}
+  </h2>
+
+  <div class="px-6 py-6 bg-white rounded-lg shadow-md dark:bg-gray-800 border dark:border-gray-700">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Cédula -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Cédula de Identidad *
+          </label>
+          <input
+            type="text"
+            name="cedula"
+            required
+            {% if empleado %}readonly class="w-full p-2.5 text-sm bg-gray-100 dark:bg-gray-700 border rounded cursor-not-allowed"{% else %}class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"{% endif %}
+            value="{% if empleado %}{{ empleado.cedula }}{% elif post_data %}{{ post_data.cedula }}{% endif %}"
+            placeholder="Ej: 1723456789"
+          />
+        </div>
+
+        <!-- Nombres -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Nombres Completos *
+          </label>
+          <input
+            type="text"
+            name="nombres"
+            required
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.nombres }}{% elif post_data %}{{ post_data.nombres }}{% endif %}"
+            placeholder="Ej: Juan Carlos Pérez"
+          />
+        </div>
+
+        <!-- Sueldo Básico -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Sueldo Básico (USD) * <span class="text-xs text-purple-600 font-semibold">(Min SBU: $460.00)</span>
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="460"
+            name="sueldo_basico"
+            required
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.sueldo_basico }}{% elif post_data %}{{ post_data.sueldo_basico }}{% else %}460.00{% endif %}"
+          />
+        </div>
+
+        <!-- Cuenta Bancaria -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Cuenta Bancaria *
+          </label>
+          <input
+            type="text"
+            name="cuenta_bancaria"
+            required
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.cuenta_bancaria }}{% elif post_data %}{{ post_data.cuenta_bancaria }}{% endif %}"
+            placeholder="Ej: 1234567890"
+          />
+        </div>
+
+        <!-- Bonificaciones -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Bonificaciones Fijas ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="bonificaciones"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.bonificaciones }}{% elif post_data %}{{ post_data.bonificaciones }}{% else %}0.00{% endif %}"
+          />
+        </div>
+
+        <!-- Préstamos de la empresa -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Préstamos Empresa ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="prestamos"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.prestamos }}{% elif post_data %}{{ post_data.prestamos }}{% else %}0.00{% endif %}"
+          />
+        </div>
+
+        <!-- Aporte IESS Pct -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Aporte Personal IESS (Porcentaje)
+          </label>
+          <input
+            type="number"
+            step="0.0001"
+            name="aporte_iess"
+            class="w-full p-2.5 text-sm dark:bg-gray-700 border rounded focus:ring-2 focus:ring-purple-500"
+            value="{% if empleado %}{{ empleado.aporte_iess }}{% elif post_data %}{{ post_data.aporte_iess }}{% else %}0.0945{% endif %}"
+          />
+          <span class="text-xs text-gray-500">Valor por ley Ecuador: 0.0945 (9.45%)</span>
+        </div>
+      </div>
+
+      <!-- Legal Benefits Checkboxes -->
+      <div class="pt-4 border-t dark:border-gray-700">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Beneficios Socializados de Ley (Pago Mensualizado)</h4>
+        <div class="flex gap-6">
+          <label class="flex items-center space-x-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              name="decimos"
+              {% if empleado %}{% if empleado.decimos %}checked{% endif %}{% else %}checked{% endif %}
+              class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            />
+            <span class="text-gray-700 dark:text-gray-300">Mensualizar Décimo Tercero y Cuarto</span>
+          </label>
+
+          <label class="flex items-center space-x-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              name="fondos_reserva"
+              {% if empleado %}{% if empleado.fondos_reserva %}checked{% endif %}{% else %}checked{% endif %}
+              class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+            />
+            <span class="text-gray-700 dark:text-gray-300">Mensualizar Fondos de Reserva (8.33%)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4 pt-4">
+        <a href="{% url 'empleados:list' %}" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300">
+          Cancelar
+        </a>
+        <button type="submit" class="px-5 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700">
+          Guardar Empleado
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
