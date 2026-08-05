@@ -1,5 +1,5 @@
 {% load static %}
-<header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800" x-data="{ isAvatarModalOpen: false, selectedPreset: '' }">
+<header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800" x-data="{ isProfileOpen: false, isAvatarModalOpen: false, selectedPreset: '' }">
   <div class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
     
     <!-- Mobile hamburger menu button -->
@@ -43,7 +43,7 @@
       </li>
 
       <!-- Profile Menu -->
-      <li class="relative flex items-center space-x-2" x-data="{ isProfileOpen: false }">
+      <li class="relative flex items-center space-x-2">
         {% if request.session.user_email %}
            <span class="text-xs font-semibold text-gray-700 dark:text-gray-200 hidden sm:inline">{{ request.session.user_email }}</span>
         {% else %}
@@ -64,7 +64,7 @@
           <ul @click.away="isProfileOpen = false" class="absolute right-0 top-10 w-48 p-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 z-50">
             {% if request.session.access_token %}
               <li class="flex">
-                <button @click="isAvatarModalOpen = true; isProfileOpen = false" class="inline-flex items-center w-full px-2 py-1.5 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-gray-800 dark:hover:text-purple-300">
+                <button type="button" @click="isAvatarModalOpen = true; isProfileOpen = false" class="inline-flex items-center w-full px-2 py-1.5 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-gray-800 dark:hover:text-purple-300">
                   <svg class="w-4 h-4 mr-3 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -99,13 +99,13 @@
   </div>
 
   <!-- Modal Cambiar Foto de Perfil -->
-  <div x-show="isAvatarModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm" x-cloak>
+  <div x-show="isAvatarModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm" style="display: none;">
     <div @click.away="isAvatarModalOpen = false" class="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 transition-all">
       <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
         <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
           <span>📷</span> Cambiar Foto de Perfil
         </h3>
-        <button @click="isAvatarModalOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg font-bold">&times;</button>
+        <button type="button" @click="isAvatarModalOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg font-bold">&times;</button>
       </div>
 
       <form method="post" action="{% url 'cambiar_foto_perfil' %}" enctype="multipart/form-data" class="mt-4 space-y-4">
@@ -139,7 +139,7 @@
 
         <div class="relative flex py-1 items-center">
           <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
-          <span class="flex-shrink mx-3 text-xs text-gray-400 font-semibold">O sube desde tu equipo</span>
+          <span class="flex-shrink mx-3 text-xs text-gray-400 font-semibold">O sube desde tu equipo (Opcional)</span>
           <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
         </div>
 

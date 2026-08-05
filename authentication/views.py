@@ -74,11 +74,13 @@ def cambiar_foto_perfil(request):
             content_type = avatar_file.content_type or 'image/png'
             encoded_image = base64.b64encode(avatar_file.read()).decode('utf-8')
             request.session['user_avatar'] = f"data:{content_type};base64,{encoded_image}"
+            request.session.modified = True
             messages.success(request, "Foto de perfil actualizada exitosamente.")
         elif avatar_url:
             request.session['user_avatar'] = avatar_url
+            request.session.modified = True
             messages.success(request, "Foto de perfil actualizada exitosamente.")
         else:
-            messages.error(request, "Por favor seleccione una imagen o ingrese una URL válida.")
+            messages.info(request, "No se realizaron cambios en la foto de perfil.")
 
     return redirect(request.META.get('HTTP_REFERER', 'dashboard:index'))
